@@ -61,7 +61,7 @@ class MainScene extends Phaser.Scene {
     this.cameras.main.setBackgroundColor('#536DFE');
 
     // Set the "Jouer" button.
-    const playButton = this.add.image(400, 200, 'button').setInteractive();
+    const playButton = this.add.image(GameComponent.width / 2, (GameComponent.height / 2) - 100, 'button').setInteractive();
     const playButtonText = this.add.text(0, 0, 'Jouer', {
       color: '#000',
       fontSize: '28px'
@@ -81,7 +81,7 @@ class MainScene extends Phaser.Scene {
     });
 
     // Set the "Paramètres" button.
-    const settingsButton = this.add.image(400, 300, 'button').setInteractive();
+    const settingsButton = this.add.image(GameComponent.width / 2, GameComponent.height / 2, 'button').setInteractive();
     const settingsButtonText = this.add.text(0, 0, 'Paramètres', {
       color: '#000',
       fontSize: '28px'
