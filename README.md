@@ -30,5 +30,5 @@ To get more help on the Angular CLI use `ng help` or go check out the [Angular C
 
 Run :
 
-`npm install @ion-phaser/core --save`
-`npm install phaser --save`
+`npm install @ion-phaser/core --save`.
+`npm install phaser --save`.
