@@ -28,7 +28,4 @@ To get more help on the Angular CLI use `ng help` or go check out the [Angular C
 
 ## Adding the Phaser library
 
-Run :
-
-`npm install @ion-phaser/core --save`.
-`npm install phaser --save`.
+Run `npm install @ion-phaser/core --save` and `npm install phaser --save` to install the library.
