@@ -24,7 +24,8 @@ export class GameComponent implements OnInit {
       physics: {
         default: 'arcade',
         arcade: {
-          gravity: { y: 500 },
+          debug: false,
+          gravity: { y: 1400 },
         }
       }
     };
@@ -204,6 +205,7 @@ class SettingsMenu extends Phaser.Scene {
 class MainGame extends Phaser.Scene {
   private player;
   private cursors;
+  private obstacles;
 
   constructor() {
     super({key: 'game'});
@@ -213,13 +215,15 @@ class MainGame extends Phaser.Scene {
     const background = this.add.image(0, 0, 'background').setOrigin(0, 0);
     background.setScale(2, 0.8);
     const map = this.make.tilemap({key : 'map'});
-    const tileset = map.addTilesetImage('spritesheet_ground', 'ground');
-    const platforms = map.createStaticLayer('Platforms', tileset, 0, 200);
+    const ground = map.addTilesetImage('spritesheet_ground', 'ground');
+    const tiles = map.addTilesetImage('spritesheet_tiles', 'tiles');
+    const platforms = map.createStaticLayer('Platforms', ground, 0, 200);
     platforms.setCollisionByExclusion([-1], true);
 
-    this.player = this.physics.add.sprite(50, 300, 'yellowPlayer', 9);
+    this.player = this.physics.add.sprite(10, 300, 'yellowPlayer', 9);
     this.player.setBounce(0.1);
     this.player.setCollideWorldBounds(true);
+    this.player.setSize(this.player.width - 20, this.player.height);
     this.physics.add.collider(this.player, platforms);
     this.anims.create({
       key: 'walk',
@@ -237,12 +241,24 @@ class MainGame extends Phaser.Scene {
     });
 
     this.cursors = this.input.keyboard.createCursorKeys();
+
+    this.obstacles = this.physics.add.group({
+      allowGravity: false,
+      immovable: true
+    });
+    const obstaclesObjects = map.getObjectLayer('Obstacles').objects;
+    obstaclesObjects.forEach(obstacleObject => {
+      const obstacle = this.obstacles.create(obstacleObject.x, obstacleObject.y + 250 - (obstacleObject.height), 'spikes');
+      obstacle.body.setSize(obstacle.width - 10, obstacle.height - 10).setOffset(5, 10);
+    });
+    this.physics.add.collider(this.player, this.obstacles, this.hitObstacle, null, this);
   }
 
   preload() {
     this.load.image('background', '../../assets/map_levels/tiles/background.png');
     this.load.image('ground', '../../assets/map_levels/tiles/spritesheet_ground.png');
     this.load.image('tiles', '../../assets/map_levels/tiles/spritesheet_tiles.png');
+    this.load.image('spikes', '../../assets/map_levels/tiles/spikes.png');
     const playerConfig: ImageFrameConfig = {
       frameWidth: 64,
       frameHeight: 74,
@@ -253,11 +269,25 @@ class MainGame extends Phaser.Scene {
 
   update() {
     if ((this.cursors.up.isDown || this.cursors.space.isDown) && this.player.body.onFloor()) {
-      this.player.setVelocityY(-250);
+      this.player.setVelocityY(-500);
       this.player.play('jump', true);
     } else if (this.player.body.onFloor()) {
       this.player.setVelocityX(200);
       this.player.play('walk', true);
     }
+  }
+
+  hitObstacle(player, obstacle) {
+    player.setVelocity(0, 0);
+    player.setX(10);
+    player.setY(300);
+    player.setAlpha(0);
+    this.tweens.add({
+      targets: player,
+      alpha: 1,
+      duration: 100,
+      easy: 'Linear',
+      repeat: 5
+    });
   }
 }
