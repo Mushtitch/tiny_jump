@@ -211,8 +211,8 @@ class MainGame extends Phaser.Scene {
   }
 
   create() {
-    const background = this.add.image(0, 0, 'background').setOrigin(0, 0);
-    background.setScale(2, 0.8);
+    const background = this.add.image(0, 0, 'background');
+    background.setScale(10, 2);
     const map = this.make.tilemap({key : 'map'});
     const ground = map.addTilesetImage('spritesheet_ground', 'ground');
     const tiles = map.addTilesetImage('spritesheet_tiles', 'tiles');
@@ -265,6 +265,7 @@ class MainGame extends Phaser.Scene {
       frameHeight: 74,
     };
     this.load.spritesheet('yellowPlayer', '../../assets/players/yellow_spritesheet.png', playerConfig);
+    this.load.audio('jumpSound', '../../assets/jump_sound.wav');
     this.load.tilemapTiledJSON('map', '../../assets/map_levels/level1.json');
   }
 
@@ -272,6 +273,7 @@ class MainGame extends Phaser.Scene {
     if ((this.cursors.up.isDown || this.cursors.space.isDown) && this.player.body.onFloor()) {
       this.player.setVelocityY(-500);
       this.player.play('jump', true);
+      this.sound.play('jumpSound');
     } else if (this.player.body.onFloor()) {
       this.player.setVelocityX(200);
       this.player.play('walk', true);
