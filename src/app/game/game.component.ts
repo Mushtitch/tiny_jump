@@ -205,6 +205,8 @@ class MainGame extends Phaser.Scene {
   private player;
   private cursors;
   private obstacles;
+  private openedDoorTop;
+  private openedDoorBottom;
 
   constructor() {
     super({key: 'game'});
@@ -212,14 +214,14 @@ class MainGame extends Phaser.Scene {
 
   create() {
     const background = this.add.image(0, 0, 'background');
-    background.setScale(10, 2);
+    background.setScale(15, 2);
     const map = this.make.tilemap({key : 'map'});
     const ground = map.addTilesetImage('spritesheet_ground', 'ground');
     const tiles = map.addTilesetImage('spritesheet_tiles', 'tiles');
     const platforms = map.createStaticLayer('Platforms', ground, 0, 200);
     platforms.setCollisionByExclusion([-1], true);
 
-    this.player = this.physics.add.sprite(10, 300, 'yellowPlayer', 9);
+    this.player = this.physics.add.sprite(50, 300, 'yellowPlayer', 9);
     this.player.setBounce(0.1);
     this.player.setCollideWorldBounds(false);
     this.player.setSize(this.player.width - 20, this.player.height);
@@ -250,7 +252,28 @@ class MainGame extends Phaser.Scene {
       const obstacle = this.obstacles.create(obstacleObject.x, obstacleObject.y + 250 - (obstacleObject.height), 'spikes');
       obstacle.body.setSize(obstacle.width - 10, obstacle.height - 10).setOffset(5, 10);
     });
+
     this.physics.add.collider(this.player, this.obstacles, this.hitObstacle, null, this);
+
+    this.openedDoorTop = this.physics.add.group({
+      allowGravity: false,
+      immovable: true
+    });
+    const openedDoorTop = map.getObjectLayer('OpenedDoorTop').objects;
+    openedDoorTop.forEach(doorObject => {
+      // tslint:disable-next-line:max-line-length
+      this.openedDoorTop.create(doorObject.x + (doorObject.width / 2), doorObject.y + 232 - (doorObject.height), 'openedDoorTop');
+    });
+
+    this.openedDoorBottom = this.physics.add.group({
+      allowGravity: false,
+      immovable: true
+    });
+    const openedDoor = map.getObjectLayer('OpenedDoorBottom').objects;
+    openedDoor.forEach(doorObject => {
+      // tslint:disable-next-line:max-line-length
+      this.openedDoorBottom.create(doorObject.x + (doorObject.width / 2), doorObject.y + 232 - (doorObject.height), 'openedDoorBottom');
+    });
 
     this.cameras.main.startFollow(this.player);
   }
@@ -260,6 +283,8 @@ class MainGame extends Phaser.Scene {
     this.load.image('ground', '../../assets/map_levels/tiles/spritesheet_ground.png');
     this.load.image('tiles', '../../assets/map_levels/tiles/spritesheet_tiles.png');
     this.load.image('spikes', '../../assets/map_levels/tiles/spikes.png');
+    this.load.image('openedDoorTop', '../../assets/map_levels/tiles/opened_door_top.png');
+    this.load.image('openedDoorBottom', '../../assets/map_levels/tiles/opened_door_bottom.png');
     const playerConfig: ImageFrameConfig = {
       frameWidth: 64,
       frameHeight: 74,
@@ -282,7 +307,7 @@ class MainGame extends Phaser.Scene {
 
   hitObstacle(player) {
     player.setVelocity(0, 0);
-    player.setX(10);
+    player.setX(50);
     player.setY(300);
     player.setAlpha(0);
     this.tweens.add({
