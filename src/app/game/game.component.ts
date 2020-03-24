@@ -232,6 +232,7 @@ class MainGame extends Phaser.Scene {
   private closedDoorBottom;
   private map;
   private level = 1;
+  private lifePlayer = 3;
 
   constructor() {
     super({key: 'game'});
@@ -377,17 +378,32 @@ class MainGame extends Phaser.Scene {
   }
 
   hitObstacle(player) {
-    player.setVelocity(0, 0);
-    player.setX(50);
-    player.setY(300);
-    player.setAlpha(0);
-    this.tweens.add({
-      targets: player,
-      alpha: 1,
-      duration: 100,
-      easy: 'Linear',
-      repeat: 5
-    });
+    if(this.lifePlayer === 0) {
+      player.setVelocity(0, 0);
+      player.setX(50);
+      player.setY(300);
+      player.setAlpha(0);
+      this.tweens.add({
+        targets: player,
+        alpha: 1,
+        duration: 100,
+        easy: 'Linear',
+        repeat: 5
+      });
+    } else {
+      player.setVelocity(0, 0);
+      player.setX(this.player.x + 40);
+      player.setY(300);
+      player.setAlpha(0);
+      this.tweens.add({
+        targets: player,
+        alpha: 1,
+        duration: 100,
+        easy: 'Linear',
+        repeat: 5
+      });
+      this.lifePlayer--;
+    }
   }
 
   hitClosedDoor() {
