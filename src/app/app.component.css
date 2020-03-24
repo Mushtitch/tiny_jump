@@ -119,3 +119,9 @@ a:focus:before {
   bottom: 50px;
   color: white;
 }
+
+.app {
+  margin: 1%;
+  padding: 1%;
+  align-content: center;
+}
