@@ -198,6 +198,27 @@ class SettingsMenu extends Phaser.Scene {
     });
 
     Phaser.Display.Align.In.Center(musicText, musicButton);
+
+    // Set the "Jouer" button.
+    const playButton = this.add.image(550, 495, 'button').setInteractive();
+    const playButtonText = this.add.text(0, 0, 'Jouer', {
+      color: '#000',
+      fontSize: '28px'
+    });
+
+    // Centers the "Jouer" string in the middle of the button's texture.
+    Phaser.Display.Align.In.Center(playButtonText, playButton);
+
+    // Starts the 'game' scene when the "Jouer" button is pressed.
+    playButton.on('pointerdown', () => {
+      playButton.setTexture('button_pressed');
+      this.sound.play('buttonSound');
+      this.scene.launch('game');
+      this.scene.stop();
+    }).on('pointerup', () => {
+      playButton.setTexture('button');
+    });
+
   }
 }
 
