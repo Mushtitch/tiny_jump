@@ -207,6 +207,8 @@ class MainGame extends Phaser.Scene {
   private obstacles;
   private openedDoorTop;
   private openedDoorBottom;
+  private closedDoorTop;
+  private closedDoorBottom;
 
   constructor() {
     super({key: 'game'});
@@ -269,10 +271,30 @@ class MainGame extends Phaser.Scene {
       allowGravity: false,
       immovable: true
     });
-    const openedDoor = map.getObjectLayer('OpenedDoorBottom').objects;
-    openedDoor.forEach(doorObject => {
+    const openedDoorBottom = map.getObjectLayer('OpenedDoorBottom').objects;
+    openedDoorBottom.forEach(doorObject => {
       // tslint:disable-next-line:max-line-length
       this.openedDoorBottom.create(doorObject.x + (doorObject.width / 2), doorObject.y + 232 - (doorObject.height), 'openedDoorBottom');
+    });
+
+    this.closedDoorTop = this.physics.add.group({
+      allowGravity: false,
+      immovable: true
+    });
+    const closedDoorTop = map.getObjectLayer('ClosedDoorTop').objects;
+    closedDoorTop.forEach(doorObject => {
+      // tslint:disable-next-line:max-line-length
+      this.openedDoorTop.create(doorObject.x + (doorObject.width / 2), doorObject.y + 232 - (doorObject.height), 'closedDoorTop');
+    });
+
+    this.closedDoorBottom = this.physics.add.group({
+      allowGravity: false,
+      immovable: true
+    });
+    const closedDoorBottom = map.getObjectLayer('ClosedDoorBottom').objects;
+    closedDoorBottom.forEach(doorObject => {
+      // tslint:disable-next-line:max-line-length
+      this.openedDoorBottom.create(doorObject.x + (doorObject.width / 2), doorObject.y + 232 - (doorObject.height), 'closedDoorBottom');
     });
 
     this.cameras.main.startFollow(this.player);
@@ -285,6 +307,8 @@ class MainGame extends Phaser.Scene {
     this.load.image('spikes', '../../assets/map_levels/tiles/spikes.png');
     this.load.image('openedDoorTop', '../../assets/map_levels/tiles/opened_door_top.png');
     this.load.image('openedDoorBottom', '../../assets/map_levels/tiles/opened_door_bottom.png');
+    this.load.image('closedDoorTop', '../../assets/map_levels/tiles/closed_door_top.png');
+    this.load.image('closedDoorBottom', '../../assets/map_levels/tiles/closed_door_bottom.png');
     const playerConfig: ImageFrameConfig = {
       frameWidth: 64,
       frameHeight: 74,
