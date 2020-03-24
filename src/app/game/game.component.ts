@@ -230,6 +230,8 @@ class MainGame extends Phaser.Scene {
   private openedDoorBottom;
   private closedDoorTop;
   private closedDoorBottom;
+ // private slow;
+  // private slowed: boolean = false;
   private map;
   private level = 1;
   private lifePlayer = 3;
@@ -261,7 +263,9 @@ class MainGame extends Phaser.Scene {
     this.map = map;
     const ground = map.addTilesetImage('spritesheet_ground', 'ground');
     const tiles = map.addTilesetImage('spritesheet_tiles', 'tiles');
+    // const bridge = map.addTilesetImage('bridge2', 'bridge');
     const platforms = map.createStaticLayer('Platforms', ground, 0, 200);
+    // const pont = map.createStaticLayer('Platforms', bridge, 0, 200);
     platforms.setCollisionByExclusion([-1], true);
 
     this.player = this.physics.add.sprite(50, 300, 'player' + this.level.toString(), 9);
@@ -269,6 +273,7 @@ class MainGame extends Phaser.Scene {
     this.player.setCollideWorldBounds(false);
     this.player.setSize(this.player.width - 20, this.player.height);
     this.physics.add.collider(this.player, platforms);
+    // this.physics.add.collider(this.player,pont);
     this.player.hasKey = true;
     this.anims.create({
       key: 'walk',
@@ -357,6 +362,10 @@ class MainGame extends Phaser.Scene {
     this.load.image('openedDoorBottom', '../../assets/map_levels/tiles/opened_door_bottom.png');
     this.load.image('closedDoorTop', '../../assets/map_levels/tiles/closed_door_top.png');
     this.load.image('closedDoorBottom', '../../assets/map_levels/tiles/closed_door_bottom.png');
+    // this.load.image('fast','../../assets/map_levels/tiles/fast_bonus.png');
+    // this.load.image('slow','../../assets/map_levels/tiles/slow_bonus.png');
+    // this.load.image('bridge','../../assets/map_levels/tiles/bridge2.png');
+
     const playerConfig: ImageFrameConfig = {
       frameWidth: 64,
       frameHeight: 74,
@@ -409,4 +418,7 @@ class MainGame extends Phaser.Scene {
   hitClosedDoor() {
     this.scene.restart({ level: this.level + 1 });
   }
+  // slowObstacle(player) {
+  //   this.slowed = true;
+  // }
 }
