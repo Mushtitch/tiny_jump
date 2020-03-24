@@ -1,0 +1,28 @@
+<mat-toolbar color="primary" fxLayout="row" fxLayoutAlign="space-between center">
+  <h1 routerLink="/">Tiny Jump</h1>
+
+  <span class="nav-tool-items">
+    <div>
+      <a mat-button routerLink="home"><mat-icon>home</mat-icon> Accueil</a>
+      <a mat-button routerLink="/players">Joueurs</a>
+
+      <button mat-icon-button [mat-menu-trigger-for]="menu">
+        <mat-icon>account_circle</mat-icon>
+        <mat-icon>more_vert</mat-icon>
+      </button>
+
+      <mat-menu x-position="before" #menu="matMenu">
+        <button mat-menu-item
+                [routerLink]="['']">Prenom Nom</button>
+        <button mat-menu-item routerLink="/">Deconnexion</button>
+      </mat-menu>
+
+    </div>
+
+    <ng-template #noconnected>
+    <a mat-button routerLink="/login">Connexion</a>
+    <a mat-button routerLink="/register">Enregistrement</a>
+    </ng-template>
+
+  </span>
+</mat-toolbar>
