@@ -4,9 +4,10 @@ import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { AppComponent } from './app.component';
 import { GameComponent } from './game/game.component';
 import {AppRoutingModule} from './app-routing.module';
+import { HomeComponent } from './home/home.component';
 
 @NgModule({
-  declarations: [AppComponent, GameComponent],
+  declarations: [AppComponent, GameComponent, HomeComponent],
   imports: [
     BrowserModule,
     AppRoutingModule],
