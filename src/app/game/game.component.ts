@@ -74,7 +74,7 @@ class MainScene extends Phaser.Scene {
     playButton.on('pointerdown', () => {
       playButton.setTexture('button_pressed');
       this.sound.play('buttonSound');
-      this.scene.launch('game');
+      this.scene.launch('game', { level: 1 });
       this.scene.stop();
     }).on('pointerup', () => {
       playButton.setTexture('button');
@@ -209,28 +209,48 @@ class MainGame extends Phaser.Scene {
   private openedDoorBottom;
   private closedDoorTop;
   private closedDoorBottom;
+  private map;
+  private level = 1;
 
   constructor() {
     super({key: 'game'});
+  }
+
+  init(data) {
+    if (data.level > 4) {
+      console.log('Scène de fin de niveaux');
+      // Lancer la scène qui dit "bien joué" etc...
+      this.scene.stop();
+    } else {
+      this.level = data.level;
+    }
+
+    if (this.level >= 2) {
+      this.preload();
+      this.create();
+    }
+    console.log('Level : ' + this.level);
   }
 
   create() {
     const background = this.add.image(0, 0, 'background');
     background.setScale(15, 2);
     const map = this.make.tilemap({key : 'map'});
+    this.map = map;
     const ground = map.addTilesetImage('spritesheet_ground', 'ground');
     const tiles = map.addTilesetImage('spritesheet_tiles', 'tiles');
     const platforms = map.createStaticLayer('Platforms', ground, 0, 200);
     platforms.setCollisionByExclusion([-1], true);
 
-    this.player = this.physics.add.sprite(50, 300, 'yellowPlayer', 9);
+    this.player = this.physics.add.sprite(50, 300, 'player' + this.level.toString(), 9);
     this.player.setBounce(0.1);
     this.player.setCollideWorldBounds(false);
     this.player.setSize(this.player.width - 20, this.player.height);
     this.physics.add.collider(this.player, platforms);
+    this.player.hasKey = true;
     this.anims.create({
       key: 'walk',
-      frames: this.anims.generateFrameNames('yellowPlayer', {
+      frames: this.anims.generateFrameNames('player' + this.level.toString(), {
         start: 9,
         end: 10
       }),
@@ -239,7 +259,7 @@ class MainGame extends Phaser.Scene {
     });
     this.anims.create({
       key: 'jump',
-      frames: [{key: 'yellowPlayer', frame: 5}],
+      frames: [{key: 'player' + this.level.toString(), frame: 5}],
       frameRate: 10
     });
 
@@ -257,11 +277,17 @@ class MainGame extends Phaser.Scene {
 
     this.physics.add.collider(this.player, this.obstacles, this.hitObstacle, null, this);
 
+    this.initDoors();
+
+    this.cameras.main.startFollow(this.player);
+  }
+
+  initDoors() {
     this.openedDoorTop = this.physics.add.group({
       allowGravity: false,
       immovable: true
     });
-    const openedDoorTop = map.getObjectLayer('OpenedDoorTop').objects;
+    const openedDoorTop = this.map.getObjectLayer('OpenedDoorTop').objects;
     openedDoorTop.forEach(doorObject => {
       // tslint:disable-next-line:max-line-length
       this.openedDoorTop.create(doorObject.x + (doorObject.width / 2), doorObject.y + 232 - (doorObject.height), 'openedDoorTop');
@@ -271,7 +297,7 @@ class MainGame extends Phaser.Scene {
       allowGravity: false,
       immovable: true
     });
-    const openedDoorBottom = map.getObjectLayer('OpenedDoorBottom').objects;
+    const openedDoorBottom = this.map.getObjectLayer('OpenedDoorBottom').objects;
     openedDoorBottom.forEach(doorObject => {
       // tslint:disable-next-line:max-line-length
       this.openedDoorBottom.create(doorObject.x + (doorObject.width / 2), doorObject.y + 232 - (doorObject.height), 'openedDoorBottom');
@@ -281,26 +307,26 @@ class MainGame extends Phaser.Scene {
       allowGravity: false,
       immovable: true
     });
-    const closedDoorTop = map.getObjectLayer('ClosedDoorTop').objects;
+    const closedDoorTop = this.map.getObjectLayer('ClosedDoorTop').objects;
     closedDoorTop.forEach(doorObject => {
       // tslint:disable-next-line:max-line-length
-      this.openedDoorTop.create(doorObject.x + (doorObject.width / 2), doorObject.y + 232 - (doorObject.height), 'closedDoorTop');
+      this.closedDoorTop.create(doorObject.x + (doorObject.width / 2), doorObject.y + 232 - (doorObject.height), 'closedDoorTop');
     });
 
     this.closedDoorBottom = this.physics.add.group({
       allowGravity: false,
       immovable: true
     });
-    const closedDoorBottom = map.getObjectLayer('ClosedDoorBottom').objects;
+    const closedDoorBottom = this.map.getObjectLayer('ClosedDoorBottom').objects;
     closedDoorBottom.forEach(doorObject => {
       // tslint:disable-next-line:max-line-length
-      this.openedDoorBottom.create(doorObject.x + (doorObject.width / 2), doorObject.y + 232 - (doorObject.height), 'closedDoorBottom');
+      this.closedDoorBottom.create(doorObject.x + (doorObject.width / 2), doorObject.y + 232 - (doorObject.height), 'closedDoorBottom');
     });
-
-    this.cameras.main.startFollow(this.player);
+    // A finir this.physics.add.collider(this.player, this.closedDoorBottom, this.hitClosedDoor, null, this);
   }
 
   preload() {
+    console.log(this.level);
     this.load.image('background', '../../assets/map_levels/tiles/background.png');
     this.load.image('ground', '../../assets/map_levels/tiles/spritesheet_ground.png');
     this.load.image('tiles', '../../assets/map_levels/tiles/spritesheet_tiles.png');
@@ -313,9 +339,9 @@ class MainGame extends Phaser.Scene {
       frameWidth: 64,
       frameHeight: 74,
     };
-    this.load.spritesheet('yellowPlayer', '../../assets/players/yellow_spritesheet.png', playerConfig);
+    this.load.spritesheet('player' + this.level.toString(), '../../assets/players/player' + this.level + '.png', playerConfig);
     this.load.audio('jumpSound', '../../assets/jump_sound.wav');
-    this.load.tilemapTiledJSON('map', '../../assets/map_levels/level1.json');
+    this.load.tilemapTiledJSON('map', '../../assets/map_levels/level' + this.level + '.json');
   }
 
   update() {
@@ -341,5 +367,9 @@ class MainGame extends Phaser.Scene {
       easy: 'Linear',
       repeat: 5
     });
+  }
+
+  hitClosedDoor() {
+    this.scene.restart({ level: this.level + 1 });
   }
 }
