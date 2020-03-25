@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import Phaser from 'phaser';
 import ImageFrameConfig = Phaser.Types.Loader.FileTypes.ImageFrameConfig;
 
@@ -18,6 +18,10 @@ export class GameComponent implements OnInit {
       type: Phaser.AUTO,
       height: GameComponent.height,
       width: GameComponent.width,
+      scale: {
+        mode: Phaser.Scale.FIT,
+        autoCenter: Phaser.Scale.Center.CENTER_BOTH
+      },
       scene: [MainScene, SettingsMenu, MainGame],
       parent: 'gameContainer',
       physics: {
@@ -387,7 +391,7 @@ class MainGame extends Phaser.Scene {
   }
 
   hitObstacle(player) {
-    if(this.lifePlayer === 0) {
+    if (this.lifePlayer === 0) {
       player.setVelocity(0, 0);
       player.setX(50);
       player.setY(300);
