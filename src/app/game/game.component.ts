@@ -241,8 +241,9 @@ class MainGame extends Phaser.Scene {
  // private slow;
   // private slowed: boolean = false;
   private map;
+  private platforms;
   private level = 1;
-  private lifePlayer = 3;
+  private hearths;
 
   constructor() {
     super({key: 'game'});
@@ -275,14 +276,29 @@ class MainGame extends Phaser.Scene {
     const platforms = map.createStaticLayer('Platforms', ground, 0, 200);
     // const pont = map.createStaticLayer('Platforms', bridge, 0, 200);
     platforms.setCollisionByExclusion([-1], true);
+    this.platforms = platforms;
 
+    this.initPlayer();
+
+    this.cursors = this.input.keyboard.createCursorKeys();
+
+    this.initObstacles();
+
+    this.initDoors();
+
+    this.cameras.main.startFollow(this.player);
+  }
+
+  initPlayer() {
     this.player = this.physics.add.sprite(50, 300, 'player' + this.level.toString(), 9);
+    // tslint:disable-next-line:max-line-length
+    // this.hearths = this.add.image(this.player.x - (GameComponent.width / 2) + 64 , this.player.y - (GameComponent.height / 2) + 64, 'heart');
     this.player.setBounce(0.1);
     this.player.setCollideWorldBounds(false);
     this.player.setSize(this.player.width - 20, this.player.height);
-    this.physics.add.collider(this.player, platforms);
     // this.physics.add.collider(this.player,pont);
     this.player.hasKey = true;
+    this.player.life = 3;
     this.anims.create({
       key: 'walk',
       frames: this.anims.generateFrameNames('player' + this.level.toString(), {
@@ -297,24 +313,21 @@ class MainGame extends Phaser.Scene {
       frames: [{key: 'player' + this.level.toString(), frame: 5}],
       frameRate: 10
     });
+    this.physics.add.collider(this.player, this.platforms);
+  }
 
-    this.cursors = this.input.keyboard.createCursorKeys();
-
+  initObstacles() {
     this.obstacles = this.physics.add.group({
       allowGravity: false,
       immovable: true
     });
-    const obstaclesObjects = map.getObjectLayer('Obstacles').objects;
+    const obstaclesObjects = this.map.getObjectLayer('Obstacles').objects;
     obstaclesObjects.forEach(obstacleObject => {
       const obstacle = this.obstacles.create(obstacleObject.x, obstacleObject.y + 250 - (obstacleObject.height), 'spikes');
       obstacle.body.setSize(obstacle.width - 10, obstacle.height - 10).setOffset(5, 10);
     });
 
     this.physics.add.collider(this.player, this.obstacles, this.hitObstacle, null, this);
-
-    this.initDoors();
-
-    this.cameras.main.startFollow(this.player);
   }
 
   initDoors() {
@@ -361,7 +374,6 @@ class MainGame extends Phaser.Scene {
   }
 
   preload() {
-    console.log(this.level);
     this.load.image('background', '../../assets/map_levels/tiles/background.png');
     this.load.image('ground', '../../assets/map_levels/tiles/spritesheet_ground.png');
     this.load.image('tiles', '../../assets/map_levels/tiles/spritesheet_tiles.png');
@@ -370,6 +382,7 @@ class MainGame extends Phaser.Scene {
     this.load.image('openedDoorBottom', '../../assets/map_levels/tiles/opened_door_bottom.png');
     this.load.image('closedDoorTop', '../../assets/map_levels/tiles/closed_door_top.png');
     this.load.image('closedDoorBottom', '../../assets/map_levels/tiles/closed_door_bottom.png');
+    this.load.image('heart', '../../assets/map_levels/tiles/heart.png');
     // this.load.image('fast','../../assets/map_levels/tiles/fast_bonus.png');
     // this.load.image('slow','../../assets/map_levels/tiles/slow_bonus.png');
     // this.load.image('bridge','../../assets/map_levels/tiles/bridge2.png');
@@ -395,42 +408,39 @@ class MainGame extends Phaser.Scene {
         this.player.setVelocityX(200);
         this.player.play('walk', true);
       }
+      /*
+      this.hearths.x = this.player.x;
+      this.hearths.y = this.player.y - 64;
+       */
     }
   }
 
   hitObstacle(player) {
-    if (this.lifePlayer === 0) {
-      player.setVelocity(0, 0);
+    if (this.player.life === 0) {
       player.setX(50);
-      player.setY(300);
-      player.setAlpha(0);
-      this.tweens.add({
-        targets: player,
-        alpha: 1,
-        duration: 100,
-        easy: 'Linear',
-        repeat: 5
-      });
+      // Lancer une scène disant que le joueur a perdu ?
+      this.player.life = 3;
     } else {
-      player.setVelocity(0, 0);
-      player.setX(this.player.x + 40);
-      player.setY(300);
-      player.setAlpha(0);
-      this.tweens.add({
-        targets: player,
-        alpha: 1,
-        duration: 100,
-        easy: 'Linear',
-        repeat: 5
-      });
-      this.lifePlayer--;
+      player.setX(this.player.x);
+      this.player.life--;
     }
+    player.setVelocity(0, 0);
+    player.setX(this.player.x + 40);
+    player.setY(300);
+    player.setAlpha(0);
+    this.tweens.add({
+      targets: player,
+      alpha: 1,
+      duration: 100,
+      easy: 'Linear',
+      repeat: 5
+    });
   }
 
   hitClosedDoor() {
     this.scene.restart({ level: this.level + 1 });
   }
   // slowObstacle(player) {
-  //   this.slowed = true;
+  //   this.player.slowed = true;
   // }
 }
