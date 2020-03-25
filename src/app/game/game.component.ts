@@ -1,6 +1,8 @@
 import {Component, OnInit} from '@angular/core';
 import Phaser from 'phaser';
 import ImageFrameConfig = Phaser.Types.Loader.FileTypes.ImageFrameConfig;
+import {Router} from '@angular/router';
+import Game = Phaser.Game;
 
 @Component({
   selector: 'app-game',
@@ -10,10 +12,12 @@ import ImageFrameConfig = Phaser.Types.Loader.FileTypes.ImageFrameConfig;
 export class GameComponent implements OnInit {
   static width = window.innerWidth - 50;
   static height = window.innerHeight - 100;
-  phaserGame: Phaser.Game;
+  static phaserGame: Phaser.Game;
+  static route;
   config: Phaser.Types.Core.GameConfig;
 
-  constructor() {
+  constructor(route: Router) {
+    GameComponent.route = route;
     this.config = {
       type: Phaser.AUTO,
       height: GameComponent.height,
@@ -36,7 +40,7 @@ export class GameComponent implements OnInit {
 
   ngOnInit(): void {
     // Init the game window.
-    this.phaserGame = new Phaser.Game(this.config);
+    GameComponent.phaserGame = new Phaser.Game(this.config);
   }
 }
 
@@ -380,13 +384,17 @@ class MainGame extends Phaser.Scene {
   }
 
   update() {
-    if ((this.cursors.up.isDown || this.cursors.space.isDown) && this.player.body.onFloor()) {
-      this.player.setVelocityY(-500);
-      this.player.play('jump', true);
-      this.sound.play('jumpSound');
-    } else if (this.player.body.onFloor()) {
-      this.player.setVelocityX(200);
-      this.player.play('walk', true);
+    if (GameComponent.route.url !== '/game') {
+      GameComponent.phaserGame.destroy(true);
+    } else {
+      if ((this.cursors.up.isDown || this.cursors.space.isDown) && this.player.body.onFloor()) {
+        this.player.setVelocityY(-500);
+        this.player.play('jump', true);
+        this.sound.play('jumpSound');
+      } else if (this.player.body.onFloor()) {
+        this.player.setVelocityX(200);
+        this.player.play('walk', true);
+      }
     }
   }
 
