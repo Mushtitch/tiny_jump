@@ -444,3 +444,4 @@ class MainGame extends Phaser.Scene {
   //   this.player.slowed = true;
   // }
 }
+
