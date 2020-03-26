@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import Phaser from 'phaser';
 import ImageFrameConfig = Phaser.Types.Loader.FileTypes.ImageFrameConfig;
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-game',
@@ -10,15 +11,21 @@ import ImageFrameConfig = Phaser.Types.Loader.FileTypes.ImageFrameConfig;
 export class GameComponent implements OnInit {
   static width = window.innerWidth - 50;
   static height = window.innerHeight - 100;
-  phaserGame: Phaser.Game;
+  static phaserGame: Phaser.Game;
+  static route;
   config: Phaser.Types.Core.GameConfig;
 
-  constructor() {
+  constructor(route: Router) {
+    GameComponent.route = route;
     this.config = {
       type: Phaser.AUTO,
       height: GameComponent.height,
       width: GameComponent.width,
-      scene: [MainScene, SettingsMenu, MainGame],
+      scale: {
+        mode: Phaser.Scale.FIT,
+        autoCenter: Phaser.Scale.Center.CENTER_BOTH
+      },
+      scene: [MainScene, SettingsMenu, MainGame, Lose],
       parent: 'gameContainer',
       physics: {
         default: 'arcade',
@@ -32,7 +39,7 @@ export class GameComponent implements OnInit {
 
   ngOnInit(): void {
     // Init the game window.
-    this.phaserGame = new Phaser.Game(this.config);
+    GameComponent.phaserGame = new Phaser.Game(this.config);
   }
 }
 
@@ -123,7 +130,6 @@ class MainScene extends Phaser.Scene {
   }
 
   update() {
-    console.log('update method');
   }
   stop() {
     this.stop();
@@ -236,8 +242,9 @@ class MainGame extends Phaser.Scene {
  // private slow;
   // private slowed: boolean = false;
   private map;
+  private platforms;
   private level = 1;
-  private lifePlayer = 3;
+  private hearths;
 
   constructor() {
     super({key: 'game'});
@@ -246,7 +253,7 @@ class MainGame extends Phaser.Scene {
   init(data) {
     if (data.level > 4) {
       console.log('Scène de fin de niveaux');
-      // Lancer la scène qui dit "bien joué" etc...
+      this.scene.launch('main');
       this.scene.stop();
     } else {
       this.level = data.level;
@@ -256,7 +263,6 @@ class MainGame extends Phaser.Scene {
       this.preload();
       this.create();
     }
-    console.log('Level : ' + this.level);
   }
 
   create() {
@@ -270,14 +276,29 @@ class MainGame extends Phaser.Scene {
     const platforms = map.createStaticLayer('Platforms', ground, 0, 200);
     // const pont = map.createStaticLayer('Platforms', bridge, 0, 200);
     platforms.setCollisionByExclusion([-1], true);
+    this.platforms = platforms;
 
+    this.cursors = this.input.keyboard.createCursorKeys();
+
+    this.initPlayer();
+
+    this.initObstacles();
+
+    this.initDoors();
+
+    this.cameras.main.startFollow(this.player);
+  }
+
+  initPlayer() {
     this.player = this.physics.add.sprite(50, 300, 'player' + this.level.toString(), 9);
+    // tslint:disable-next-line:max-line-length
+    // this.hearths = this.add.image(this.player.x - (GameComponent.width / 2) + 64 , this.player.y - (GameComponent.height / 2) + 64, 'heart');
     this.player.setBounce(0.1);
     this.player.setCollideWorldBounds(false);
     this.player.setSize(this.player.width - 20, this.player.height);
-    this.physics.add.collider(this.player, platforms);
     // this.physics.add.collider(this.player,pont);
     this.player.hasKey = true;
+    this.player.life = 3;
     this.anims.create({
       key: 'walk',
       frames: this.anims.generateFrameNames('player' + this.level.toString(), {
@@ -292,24 +313,21 @@ class MainGame extends Phaser.Scene {
       frames: [{key: 'player' + this.level.toString(), frame: 5}],
       frameRate: 10
     });
+    this.physics.add.collider(this.player, this.platforms);
+  }
 
-    this.cursors = this.input.keyboard.createCursorKeys();
-
+  initObstacles() {
     this.obstacles = this.physics.add.group({
       allowGravity: false,
       immovable: true
     });
-    const obstaclesObjects = map.getObjectLayer('Obstacles').objects;
+    const obstaclesObjects = this.map.getObjectLayer('Obstacles').objects;
     obstaclesObjects.forEach(obstacleObject => {
       const obstacle = this.obstacles.create(obstacleObject.x, obstacleObject.y + 250 - (obstacleObject.height), 'spikes');
       obstacle.body.setSize(obstacle.width - 10, obstacle.height - 10).setOffset(5, 10);
     });
 
     this.physics.add.collider(this.player, this.obstacles, this.hitObstacle, null, this);
-
-    this.initDoors();
-
-    this.cameras.main.startFollow(this.player);
   }
 
   initDoors() {
@@ -352,11 +370,10 @@ class MainGame extends Phaser.Scene {
       // tslint:disable-next-line:max-line-length
       this.closedDoorBottom.create(doorObject.x + (doorObject.width / 2), doorObject.y + 232 - (doorObject.height), 'closedDoorBottom');
     });
-    // A finir this.physics.add.collider(this.player, this.closedDoorBottom, this.hitClosedDoor, null, this);
+    this.physics.add.collider(this.player, this.closedDoorBottom, this.hitClosedDoor, null, this);
   }
 
   preload() {
-    console.log(this.level);
     this.load.image('background', '../../assets/map_levels/tiles/background.png');
     this.load.image('ground', '../../assets/map_levels/tiles/spritesheet_ground.png');
     this.load.image('tiles', '../../assets/map_levels/tiles/spritesheet_tiles.png');
@@ -365,6 +382,7 @@ class MainGame extends Phaser.Scene {
     this.load.image('openedDoorBottom', '../../assets/map_levels/tiles/opened_door_bottom.png');
     this.load.image('closedDoorTop', '../../assets/map_levels/tiles/closed_door_top.png');
     this.load.image('closedDoorBottom', '../../assets/map_levels/tiles/closed_door_bottom.png');
+    this.load.image('heart', '../../assets/map_levels/tiles/heart.png');
     // this.load.image('fast','../../assets/map_levels/tiles/fast_bonus.png');
     // this.load.image('slow','../../assets/map_levels/tiles/slow_bonus.png');
     // this.load.image('bridge','../../assets/map_levels/tiles/bridge2.png');
@@ -373,19 +391,27 @@ class MainGame extends Phaser.Scene {
       frameWidth: 64,
       frameHeight: 74,
     };
-    this.load.spritesheet('player' + this.level.toString(), '../../assets/players/player' + this.level + '.png', playerConfig);
+    this.load.spritesheet('player' + this.level, '../../assets/players/player' + this.level + '.png', playerConfig);
     this.load.audio('jumpSound', '../../assets/jump_sound.wav');
     this.load.tilemapTiledJSON('map', '../../assets/map_levels/level' + this.level + '.json');
   }
 
   update() {
-    if ((this.cursors.up.isDown || this.cursors.space.isDown) && this.player.body.onFloor()) {
-      this.player.setVelocityY(-500);
-      this.player.play('jump', true);
-      this.sound.play('jumpSound');
-    } else if (this.player.body.onFloor()) {
-      this.player.setVelocityX(200);
-      this.player.play('walk', true);
+    if (GameComponent.route.url !== '/game') {
+      GameComponent.phaserGame.destroy(true);
+    } else {
+      if ((this.cursors.up.isDown || this.cursors.space.isDown) && this.player.body.onFloor()) {
+        this.player.setVelocityY(-500);
+        this.player.play('jump', true);
+        this.sound.play('jumpSound');
+      } else if (this.player.body.onFloor()) {
+        this.player.setVelocityX(200);
+        this.player.play('walk', true);
+      }
+      /*
+      this.hearths.x = this.player.x;
+      this.hearths.y = this.player.y - 64;
+       */
     }
   }
   stop() {
@@ -393,38 +419,69 @@ class MainGame extends Phaser.Scene {
   }
 
   hitObstacle(player) {
-    if(this.lifePlayer === 0) {
-      player.setVelocity(0, 0);
-      player.setX(50);
-      player.setY(300);
-      player.setAlpha(0);
-      this.tweens.add({
-        targets: player,
-        alpha: 1,
-        duration: 100,
-        easy: 'Linear',
-        repeat: 5
-      });
+    this.player.life--;
+    if (this.player.life === 0) {
+      // player.setX(50);
+      // this.player.life = 3;
+      this.scene.launch('lose');
+      this.scene.stop();
     } else {
-      player.setVelocity(0, 0);
-      player.setX(this.player.x + 40);
-      player.setY(300);
-      player.setAlpha(0);
-      this.tweens.add({
-        targets: player,
-        alpha: 1,
-        duration: 100,
-        easy: 'Linear',
-        repeat: 5
-      });
-      this.lifePlayer--;
+      player.setX(this.player.x);
     }
+    player.setVelocity(0, 0);
+    player.setX(this.player.x - 160);
+    player.setY(300);
+    player.setAlpha(0);
+    this.tweens.add({
+      targets: player,
+      alpha: 1,
+      duration: 100,
+      easy: 'Linear',
+      repeat: 5
+    });
   }
 
   hitClosedDoor() {
     this.scene.restart({ level: this.level + 1 });
   }
   // slowObstacle(player) {
-  //   this.slowed = true;
+  //   this.player.slowed = true;
   // }
+}
+
+class Lose extends Phaser.Scene {
+
+  constructor() {
+    super({key: 'lose'});
+  }
+  create() {
+    // The background color of the lose scene.
+    this.cameras.main.setBackgroundColor('#536DFE');
+
+    // Set the "Retour au menu" button.
+    const returnButton = this.add.image(GameComponent.width / 2, GameComponent.height / 2, 'button').setInteractive().setScale(1.5);
+    const returnButtonText = this.add.text(0, 0, 'Retour au menu', {
+      color: '#000',
+      fontSize: '28px'
+    });
+
+    Phaser.Display.Align.In.Center(returnButtonText, returnButton);
+
+    // Starts the 'game' scene when the "Jouer" button is pressed.
+    returnButton.on('pointerdown', () => {
+      returnButton.setTexture('button_pressed');
+      this.scene.launch('main');
+      this.scene.stop();
+    }).on('pointerup', () => {
+      returnButton.setTexture('button');
+    });
+  }
+
+  preload() {
+    this.load.image('button', '../../assets/green_button02.png');
+    this.load.image('button_pressed', '../../assets/green_button03.png');
+  }
+
+  update() {
+  }
 }
