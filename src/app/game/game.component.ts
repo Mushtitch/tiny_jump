@@ -125,6 +125,9 @@ class MainScene extends Phaser.Scene {
   update() {
     console.log('update method');
   }
+  stop() {
+    this.stop();
+  }
 }
 
 class SettingsMenu extends Phaser.Scene {
@@ -384,6 +387,9 @@ class MainGame extends Phaser.Scene {
       this.player.setVelocityX(200);
       this.player.play('walk', true);
     }
+  }
+  stop() {
+    this.stop();
   }
 
   hitObstacle(player) {
