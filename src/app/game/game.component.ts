@@ -2,7 +2,6 @@ import {Component, OnInit} from '@angular/core';
 import Phaser from 'phaser';
 import ImageFrameConfig = Phaser.Types.Loader.FileTypes.ImageFrameConfig;
 import {Router} from '@angular/router';
-import Game = Phaser.Game;
 
 @Component({
   selector: 'app-game',
@@ -26,7 +25,7 @@ export class GameComponent implements OnInit {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.Center.CENTER_BOTH
       },
-      scene: [MainScene, SettingsMenu, MainGame],
+      scene: [MainScene, SettingsMenu, MainGame, Lose],
       parent: 'gameContainer',
       physics: {
         default: 'arcade',
@@ -131,7 +130,6 @@ class MainScene extends Phaser.Scene {
   }
 
   update() {
-    console.log('update method');
   }
 }
 
@@ -262,7 +260,6 @@ class MainGame extends Phaser.Scene {
       this.preload();
       this.create();
     }
-    console.log('Level : ' + this.level);
   }
 
   create() {
@@ -278,9 +275,9 @@ class MainGame extends Phaser.Scene {
     platforms.setCollisionByExclusion([-1], true);
     this.platforms = platforms;
 
-    this.initPlayer();
-
     this.cursors = this.input.keyboard.createCursorKeys();
+
+    this.initPlayer();
 
     this.initObstacles();
 
@@ -416,13 +413,14 @@ class MainGame extends Phaser.Scene {
   }
 
   hitObstacle(player) {
+    this.player.life--;
     if (this.player.life === 0) {
-      player.setX(50);
-      // Lancer une scène disant que le joueur a perdu ?
-      this.player.life = 3;
+      // player.setX(50);
+      // this.player.life = 3;
+      this.scene.launch('lose');
+      this.scene.stop();
     } else {
       player.setX(this.player.x);
-      this.player.life--;
     }
     player.setVelocity(0, 0);
     player.setX(this.player.x + 40);
@@ -443,4 +441,41 @@ class MainGame extends Phaser.Scene {
   // slowObstacle(player) {
   //   this.player.slowed = true;
   // }
+}
+
+class Lose extends Phaser.Scene {
+
+  constructor() {
+    super({key: 'lose'});
+  }
+  create() {
+    // The background color of the lose scene.
+    this.cameras.main.setBackgroundColor('#536DFE');
+
+    // Set the "Retour au menu" button.
+    const returnButton = this.add.image(GameComponent.width / 2, GameComponent.height / 2, 'button').setInteractive().setScale(1.5);
+    const returnButtonText = this.add.text(0, 0, 'Retour au menu', {
+      color: '#000',
+      fontSize: '28px'
+    });
+
+    Phaser.Display.Align.In.Center(returnButtonText, returnButton);
+
+    // Starts the 'game' scene when the "Jouer" button is pressed.
+    returnButton.on('pointerdown', () => {
+      returnButton.setTexture('button_pressed');
+      this.scene.launch('main');
+      this.scene.stop();
+    }).on('pointerup', () => {
+      returnButton.setTexture('button');
+    });
+  }
+
+  preload() {
+    this.load.image('button', '../../assets/green_button02.png');
+    this.load.image('button_pressed', '../../assets/green_button03.png');
+  }
+
+  update() {
+  }
 }
