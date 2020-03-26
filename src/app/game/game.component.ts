@@ -250,7 +250,7 @@ class MainGame extends Phaser.Scene {
   init(data) {
     if (data.level > 4) {
       console.log('Scène de fin de niveaux');
-      // Lancer la scène qui dit "bien joué" etc...
+      this.scene.launch('main');
       this.scene.stop();
     } else {
       this.level = data.level;
@@ -367,7 +367,7 @@ class MainGame extends Phaser.Scene {
       // tslint:disable-next-line:max-line-length
       this.closedDoorBottom.create(doorObject.x + (doorObject.width / 2), doorObject.y + 232 - (doorObject.height), 'closedDoorBottom');
     });
-    // A finir this.physics.add.collider(this.player, this.closedDoorBottom, this.hitClosedDoor, null, this);
+    this.physics.add.collider(this.player, this.closedDoorBottom, this.hitClosedDoor, null, this);
   }
 
   preload() {
@@ -388,7 +388,7 @@ class MainGame extends Phaser.Scene {
       frameWidth: 64,
       frameHeight: 74,
     };
-    this.load.spritesheet('player' + this.level.toString(), '../../assets/players/player' + this.level + '.png', playerConfig);
+    this.load.spritesheet('player' + this.level, '../../assets/players/player' + this.level + '.png', playerConfig);
     this.load.audio('jumpSound', '../../assets/jump_sound.wav');
     this.load.tilemapTiledJSON('map', '../../assets/map_levels/level' + this.level + '.json');
   }
