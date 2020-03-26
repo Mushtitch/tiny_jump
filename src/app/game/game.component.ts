@@ -423,7 +423,7 @@ class MainGame extends Phaser.Scene {
       player.setX(this.player.x);
     }
     player.setVelocity(0, 0);
-    player.setX(this.player.x + 40);
+    player.setX(this.player.x - 160);
     player.setY(300);
     player.setAlpha(0);
     this.tweens.add({
