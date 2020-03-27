@@ -25,7 +25,7 @@ export class GameComponent implements OnInit {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.Center.CENTER_BOTH
       },
-      scene: [MainScene, SettingsMenu, MainGame, Lose],
+      scene: [MainScene, SettingsMenu, MainGame, NextLevel, Lose],
       parent: 'gameContainer',
       physics: {
         default: 'arcade',
@@ -130,9 +130,6 @@ class MainScene extends Phaser.Scene {
   }
 
   update() {
-  }
-  stop() {
-    this.stop();
   }
 }
 
@@ -239,44 +236,43 @@ class MainGame extends Phaser.Scene {
   private openedDoorBottom;
   private closedDoorTop;
   private closedDoorBottom;
- // private slow;
-  // private slowed: boolean = false;
   private map;
   private platforms;
-  private level = 1;
-  private hearths;
+  private level;
+  // private hearths;
+  // private slow;
+  // private slowed: boolean = false;
 
   constructor() {
     super({key: 'game'});
   }
 
   init(data) {
-    if (data.level > 4) {
+    if (data.level > 2) {
       console.log('Scène de fin de niveaux');
       this.scene.launch('main');
       this.scene.stop();
     } else {
       this.level = data.level;
-    }
-
-    if (this.level >= 2) {
-      this.preload();
-      this.create();
+      if (this.level > 1 || !this.checkIfNewGame()) {
+        this.destroyPreviousLevelData();
+      }
     }
   }
 
   create() {
     const background = this.add.image(0, 0, 'background');
     background.setScale(15, 2);
-    const map = this.make.tilemap({key : 'map'});
-    this.map = map;
-    const ground = map.addTilesetImage('spritesheet_ground', 'ground');
-    const tiles = map.addTilesetImage('spritesheet_tiles', 'tiles');
+    this.map = this.make.tilemap({key : 'map' + this.level});
+    const ground = this.map.addTilesetImage('spritesheet_ground', 'ground');
+    // const tiles = this.map.addTilesetImage('spritesheet_tiles', 'tiles');
     // const bridge = map.addTilesetImage('bridge2', 'bridge');
-    const platforms = map.createStaticLayer('Platforms', ground, 0, 200);
+    if (this.platforms !== undefined) {
+      this.platforms.destroy();
+    }
+    this.platforms = this.map.createStaticLayer('Platforms', ground, 0, 200);
     // const pont = map.createStaticLayer('Platforms', bridge, 0, 200);
-    platforms.setCollisionByExclusion([-1], true);
-    this.platforms = platforms;
+    this.platforms.setCollisionByExclusion([-1], true);
 
     this.cursors = this.input.keyboard.createCursorKeys();
 
@@ -290,18 +286,18 @@ class MainGame extends Phaser.Scene {
   }
 
   initPlayer() {
-    this.player = this.physics.add.sprite(50, 300, 'player' + this.level.toString(), 9);
+    this.player = this.physics.add.sprite(50, 300, 'player' + this.level, 9);
     // tslint:disable-next-line:max-line-length
     // this.hearths = this.add.image(this.player.x - (GameComponent.width / 2) + 64 , this.player.y - (GameComponent.height / 2) + 64, 'heart');
     this.player.setBounce(0.1);
     this.player.setCollideWorldBounds(false);
     this.player.setSize(this.player.width - 20, this.player.height);
     // this.physics.add.collider(this.player,pont);
-    this.player.hasKey = true;
+    // this.player.hasKey = false;
     this.player.life = 3;
     this.anims.create({
       key: 'walk',
-      frames: this.anims.generateFrameNames('player' + this.level.toString(), {
+      frames: this.anims.generateFrameNames('player' + this.level, {
         start: 9,
         end: 10
       }),
@@ -310,7 +306,7 @@ class MainGame extends Phaser.Scene {
     });
     this.anims.create({
       key: 'jump',
-      frames: [{key: 'player' + this.level.toString(), frame: 5}],
+      frames: [{key: 'player' + this.level, frame: 5}],
       frameRate: 10
     });
     this.physics.add.collider(this.player, this.platforms);
@@ -328,6 +324,23 @@ class MainGame extends Phaser.Scene {
     });
 
     this.physics.add.collider(this.player, this.obstacles, this.hitObstacle, null, this);
+  }
+
+  destroyPreviousLevelData() {
+    this.anims.remove('walk');
+    this.anims.remove('jump');
+    this.player.destroy();
+    this.obstacles.destroy();
+    this.openedDoorTop.destroy();
+    this.openedDoorBottom.destroy();
+    this.closedDoorTop.destroy();
+    this.closedDoorBottom.destroy();
+    this.map.destroy();
+    this.platforms.destroy();
+  }
+
+  checkIfNewGame() {
+    return (this.player === undefined || this.obstacles === undefined);
   }
 
   initDoors() {
@@ -391,9 +404,11 @@ class MainGame extends Phaser.Scene {
       frameWidth: 64,
       frameHeight: 74,
     };
-    this.load.spritesheet('player' + this.level, '../../assets/players/player' + this.level + '.png', playerConfig);
+    this.load.spritesheet('player1', '../../assets/players/player1.png', playerConfig);
+    this.load.spritesheet('player2', '../../assets/players/player2.png', playerConfig);
     this.load.audio('jumpSound', '../../assets/jump_sound.wav');
-    this.load.tilemapTiledJSON('map', '../../assets/map_levels/level' + this.level + '.json');
+    this.load.tilemapTiledJSON('map1', '../../assets/map_levels/level1.json');
+    this.load.tilemapTiledJSON('map2', '../../assets/map_levels/level2.json');
   }
 
   update() {
@@ -413,9 +428,6 @@ class MainGame extends Phaser.Scene {
       this.hearths.y = this.player.y - 64;
        */
     }
-  }
-  stop() {
-    this.stop();
   }
 
   hitObstacle(player) {
@@ -442,11 +454,77 @@ class MainGame extends Phaser.Scene {
   }
 
   hitClosedDoor() {
-    this.scene.restart({ level: this.level + 1 });
+    this.scene.launch('nextLevel', { level : this.level + 1});
+    this.scene.stop();
   }
   // slowObstacle(player) {
   //   this.player.slowed = true;
   // }
+}
+
+class NextLevel extends Phaser.Scene {
+  private level;
+
+  constructor() {
+    super({key: 'nextLevel'});
+  }
+
+  init(data) {
+    this.level = data.level;
+  }
+
+  create() {
+    // The background color of the lose scene.
+    this.cameras.main.setBackgroundColor('#536DFE');
+    console.log('nextLevel : ' + this.level);
+
+    // Set the "Niveau suivant" button.
+    if ( this.level <= 4) {
+      // tslint:disable-next-line:max-line-length
+      const nextLevelButton = this.add.image(GameComponent.width / 2, GameComponent.height / 2 - 100, 'button').setInteractive().setScale(1.5);
+      const nextLevelButtonText = this.add.text(0, 0, 'Niveau ' + this.level, {
+        color: '#000',
+        fontSize: '28px'
+      });
+
+      Phaser.Display.Align.In.Center(nextLevelButtonText, nextLevelButton);
+
+      // Starts the 'game' scene when the "Jouer" button is pressed.
+      nextLevelButton.on('pointerdown', () => {
+        nextLevelButton.setTexture('button_pressed');
+        this.scene.launch('game', {level: this.level});
+        this.scene.stop();
+      }).on('pointerup', () => {
+        nextLevelButton.setTexture('button');
+      });
+    }
+
+    // Set the "Retour au menu" button.
+    const returnButton = this.add.image(GameComponent.width / 2, GameComponent.height / 2, 'button').setInteractive().setScale(1.5);
+    const returnButtonText = this.add.text(0, 0, 'Retour au menu', {
+      color: '#000',
+      fontSize: '28px'
+    });
+
+    Phaser.Display.Align.In.Center(returnButtonText, returnButton);
+
+    // Starts the 'game' scene when the "Jouer" button is pressed.
+    returnButton.on('pointerdown', () => {
+      returnButton.setTexture('button_pressed');
+      this.scene.launch('main');
+      this.scene.stop();
+    }).on('pointerup', () => {
+      returnButton.setTexture('button');
+    });
+  }
+
+  preload() {
+    this.load.image('button', '../../assets/green_button02.png');
+    this.load.image('button_pressed', '../../assets/green_button03.png');
+  }
+
+  update() {
+  }
 }
 
 class Lose extends Phaser.Scene {
