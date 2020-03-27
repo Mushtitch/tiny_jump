@@ -287,6 +287,7 @@ class MainGame extends Phaser.Scene {
     this.initDoors();
 
     this.cameras.main.startFollow(this.player);
+
   }
 
   initPlayer() {
