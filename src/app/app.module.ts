@@ -9,6 +9,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {AngularMaterialModule} from './angular-material.module';
 import { NavComponent } from './nav/nav.component';
 import {FlexLayoutModule} from '@angular/flex-layout';
+import {AuthModule} from './auth/auth.module';
+import {HttpClientModule} from '@angular/common/http';
 
 @NgModule({
   declarations: [AppComponent, GameComponent, HomeComponent, NavComponent],
@@ -17,7 +19,10 @@ import {FlexLayoutModule} from '@angular/flex-layout';
     AppRoutingModule,
     BrowserAnimationsModule,
     AngularMaterialModule,
-    FlexLayoutModule],
+    FlexLayoutModule,
+    AuthModule,
+    HttpClientModule,
+  ],
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })

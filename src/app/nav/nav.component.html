@@ -1,8 +1,8 @@
 <mat-toolbar color="primary" fxLayout="row" fxLayoutAlign="space-between center">
-  <h1 routerLink="/">Tiny Jump</h1>
+  <img class="img" src="../../assets/img/logo.png" routerLink="/">
 
   <span class="nav-tool-items">
-    <div>
+    <div *ngIf="currentUser; else noconnected">
       <a mat-button routerLink="home"><mat-icon>home</mat-icon> Accueil</a>
       <a mat-button routerLink="/players">Joueurs</a>
 
@@ -12,16 +12,15 @@
       </button>
 
       <mat-menu x-position="before" #menu="matMenu">
-        <button mat-menu-item
-                [routerLink]="['']">Prenom Nom</button>
-        <button mat-menu-item routerLink="/">Deconnexion</button>
+        <button mat-menu-item [routerLink]="['']">{{currentUser.prenom}} {{currentUser.prenom}}</button>
+        <button mat-menu-item [routerLink]="['login']" (click)="logout()">Déconnexion</button>
       </mat-menu>
 
     </div>
 
     <ng-template #noconnected>
-    <a mat-button routerLink="/login">Connexion</a>
-    <a mat-button routerLink="/register">Enregistrement</a>
+      <a mat-button routerLink="/login">Connexion</a>
+      <a mat-button routerLink="/register">Créer un compte</a>
     </ng-template>
 
   </span>
