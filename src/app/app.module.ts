@@ -11,9 +11,10 @@ import { NavComponent } from './nav/nav.component';
 import {FlexLayoutModule} from '@angular/flex-layout';
 import {AuthModule} from './auth/auth.module';
 import {HttpClientModule} from '@angular/common/http';
+import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 
 @NgModule({
-  declarations: [AppComponent, GameComponent, HomeComponent, NavComponent],
+  declarations: [AppComponent, GameComponent, HomeComponent, NavComponent, PageNotFoundComponent],
   imports: [
     BrowserModule,
     AppRoutingModule,
