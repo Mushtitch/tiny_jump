@@ -9,7 +9,7 @@ import {Router} from '@angular/router';
   styleUrls: ['./game.component.css']
 })
 export class GameComponent implements OnInit {
-  static width = window.innerWidth - 50;
+  static width = (window.innerWidth - 50) * 0.8;
   static height = window.innerHeight - 100;
   static phaserGame: Phaser.Game;
   static route;
