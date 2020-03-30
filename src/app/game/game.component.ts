@@ -9,8 +9,8 @@ import {Router} from '@angular/router';
   styleUrls: ['./game.component.css']
 })
 export class GameComponent implements OnInit {
-  static width = (window.innerWidth - 50) * 0.8;
-  static height = window.innerHeight - 100;
+  static width = (window.innerWidth) * 0.8;
+  static height = window.innerHeight - 200;
   static phaserGame: Phaser.Game;
   static route;
   config: Phaser.Types.Core.GameConfig;
@@ -22,8 +22,7 @@ export class GameComponent implements OnInit {
       height: GameComponent.height,
       width: GameComponent.width,
       scale: {
-        mode: Phaser.Scale.FIT,
-        autoCenter: Phaser.Scale.Center.CENTER_BOTH
+        autoCenter: Phaser.Scale.Center.CENTER_HORIZONTALLY
       },
       scene: [MainScene, SettingsMenu, MainGame, NextLevel, Lose],
       parent: 'gameContainer',
@@ -130,6 +129,9 @@ class MainScene extends Phaser.Scene {
   }
 
   update() {
+    if (GameComponent.route.url !== '/game') {
+      GameComponent.phaserGame.destroy(true);
+    }
   }
 }
 
@@ -219,12 +221,17 @@ class SettingsMenu extends Phaser.Scene {
     playButton.on('pointerdown', () => {
       playButton.setTexture('button_pressed');
       this.sound.play('buttonSound');
-      this.scene.launch('game');
+      this.scene.launch('game', { level : 1 });
       this.scene.stop();
     }).on('pointerup', () => {
       playButton.setTexture('button');
     });
+  }
 
+  update() {
+    if (GameComponent.route.url !== '/game') {
+      GameComponent.phaserGame.destroy(true);
+    }
   }
 }
 
@@ -525,6 +532,9 @@ class NextLevel extends Phaser.Scene {
   }
 
   update() {
+    if (GameComponent.route.url !== '/game') {
+      GameComponent.phaserGame.destroy(true);
+    }
   }
 }
 
@@ -562,5 +572,8 @@ class Lose extends Phaser.Scene {
   }
 
   update() {
+    if (GameComponent.route.url !== '/game') {
+      GameComponent.phaserGame.destroy(true);
+    }
   }
 }
