@@ -7,19 +7,27 @@
   </mat-progress-spinner>
 </div>
 
-<div fxLayout="row" fxLayoutAlign="space-around center" *ngIf="player">
-  <mat-card fxFlex="80">
+<div fxLayout="row" fxLayoutAlign="space-around center" *ngIf="player" style="padding: 20px;">
+
+  <mat-card fxFill>
     <mat-card-header>
       <mat-card-title>
         {{player.prenom}} {{player.nom}}
       </mat-card-title>
+
+      <mat-card-subtitle>
+        Identifiant : {{player.id}}
+      </mat-card-subtitle>
     </mat-card-header>
+
     <mat-card-content>
       <div fxLayoutAlign="center center">
-        <img mat-card-image [src]="player.avatar" class="img-avatar">
+        <img mat-card-image [src]="player.avatar" class="img-avatar" alt="Avatar">
       </div>
 
+      <p>Adresse mail : {{player.user.email}}</p>
     </mat-card-content>
+
     <mat-card-actions fxLayout="row" fxLayoutAlign="center space-around">
       <button mat-raised-button (click)="editPlayer()">
         <mat-icon>edit</mat-icon>
@@ -29,4 +37,5 @@
       </button>
     </mat-card-actions>
   </mat-card>
+
 </div>

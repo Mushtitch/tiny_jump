@@ -19,12 +19,19 @@ export class Player {
 
   static parse(personne: any) {
     const user = User.parse(personne);
-    console.log('User : ', user);
     return new Player(personne.id, personne.nom,
       personne.prenom,
       personne.actif,
       personne.avatar,
       user);
+  }
+
+  isAuteur() {
+    return this.user.role.indexOf('auteur') > 0;
+  }
+
+  isAdmin() {
+    return this.user.role.indexOf('admin') > 0;
   }
 }
 

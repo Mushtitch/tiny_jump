@@ -4,6 +4,7 @@ import {PlayersService} from '../players.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
 import {DialogComponent} from '../../dialog/dialog.component';
+import {AuthService} from '../../shared/auth.service';
 
 @Component({
   selector: 'app-players-details',
@@ -13,11 +14,14 @@ import {DialogComponent} from '../../dialog/dialog.component';
 export class DetailsPlayersComponent implements OnInit {
   loading: boolean = false;
   player: Player;
+  currentUser: Player;
 
   constructor(private route: ActivatedRoute,
               private router: Router,
               private service: PlayersService,
-              private dialog: MatDialog) {
+              private dialog: MatDialog,
+              private authenticationService: AuthService) {
+    this.authenticationService.currentUser.subscribe(x => this.currentUser = x);
   }
 
   ngOnInit() {

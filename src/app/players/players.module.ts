@@ -23,15 +23,16 @@ import {MatTabsModule} from '@angular/material/tabs';
     ListPlayersComponent,
     DetailsPlayersComponent,
   ],
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    PlayersRoutingModule,
-    FlexLayoutModule,
-    AngularMaterialModule,
-    MatProgressSpinnerModule,
-    MatTabsModule,
-  ],
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        PlayersRoutingModule,
+        FlexLayoutModule,
+        AngularMaterialModule,
+        MatProgressSpinnerModule,
+        MatTabsModule,
+        MaterialFileInputModule,
+    ],
   providers: [AuteurGuardService],
 })
 export class PlayersModule { }
