@@ -246,8 +246,10 @@ class MainGame extends Phaser.Scene {
   private map;
   private platforms;
   private level;
+  // private lifeBonus;
+  // private speedBonus;
+  // private slowBonus;
   // private hearths;
-  // private slow;
   // private slowed: boolean = false;
 
   constructor() {
@@ -287,6 +289,8 @@ class MainGame extends Phaser.Scene {
 
     this.initObstacles();
 
+    // this.initBonusMalus();
+
     this.initDoors();
 
     this.cameras.main.startFollow(this.player);
@@ -303,6 +307,7 @@ class MainGame extends Phaser.Scene {
     // this.physics.add.collider(this.player,pont);
     // this.player.hasKey = false;
     this.player.life = 3;
+    this.player.speed = 200;
     this.anims.create({
       key: 'walk',
       frames: this.anims.generateFrameNames('player' + this.level, {
@@ -332,23 +337,6 @@ class MainGame extends Phaser.Scene {
     });
 
     this.physics.add.collider(this.player, this.obstacles, this.hitObstacle, null, this);
-  }
-
-  destroyPreviousLevelData() {
-    this.anims.remove('walk');
-    this.anims.remove('jump');
-    this.player.destroy();
-    this.obstacles.destroy();
-    this.openedDoorTop.destroy();
-    this.openedDoorBottom.destroy();
-    this.closedDoorTop.destroy();
-    this.closedDoorBottom.destroy();
-    this.map.destroy();
-    this.platforms.destroy();
-  }
-
-  checkIfNewGame() {
-    return (this.player === undefined || this.obstacles === undefined);
   }
 
   initDoors() {
@@ -394,6 +382,47 @@ class MainGame extends Phaser.Scene {
     this.physics.add.collider(this.player, this.closedDoorBottom, this.hitClosedDoor, null, this);
   }
 
+  initBonusMalus() {
+/*    this.speedBonus = this.physics.add.group({
+      allowGravity: false,
+      immovable: true,
+    });
+    const speedBonusObjects = this.map.getObjectLayer('Fast').objects;
+    speedBonusObjects.forEach(speedBonusObject => {
+      const obstacle = this.speedBonus.create(speedBonusObject.x, speedBonusObject.y + 215 - (speedBonusObject.height / 2), 'fast');
+    });
+
+    this.physics.add.collider(this.player, this.speedBonus, this.hitSpeedBonus, null, this);
+
+    this.lifeBonus = this.physics.add.group({
+      allowGravity: false,
+      immovable: true,
+    });
+    const lifeBonusObjects = this.map.getObjectLayer('Heart').objects;
+    lifeBonusObjects.forEach(lifeBonusObject => {
+      const obstacle = this.lifeBonus.create(lifeBonusObject.x, lifeBonusObject.y + 215 - (lifeBonusObject.height / 2), 'heart');
+    });
+
+    this.physics.add.collider(this.player, this.lifeBonus, this.hitLifeBonus, null, this);*/
+  }
+
+  destroyPreviousLevelData() {
+    this.anims.remove('walk');
+    this.anims.remove('jump');
+    this.player.destroy();
+    this.obstacles.destroy();
+    this.openedDoorTop.destroy();
+    this.openedDoorBottom.destroy();
+    this.closedDoorTop.destroy();
+    this.closedDoorBottom.destroy();
+    this.map.destroy();
+    this.platforms.destroy();
+  }
+
+  checkIfNewGame() {
+    return (this.player === undefined || this.obstacles === undefined);
+  }
+
   preload() {
     this.load.image('background', '../../assets/map_levels/tiles/background.png');
     this.load.image('ground', '../../assets/map_levels/tiles/spritesheet_ground.png');
@@ -404,7 +433,7 @@ class MainGame extends Phaser.Scene {
     this.load.image('closedDoorTop', '../../assets/map_levels/tiles/closed_door_top.png');
     this.load.image('closedDoorBottom', '../../assets/map_levels/tiles/closed_door_bottom.png');
     this.load.image('heart', '../../assets/map_levels/tiles/heart.png');
-    // this.load.image('fast','../../assets/map_levels/tiles/fast_bonus.png');
+    this.load.image('fast', '../../assets/map_levels/tiles/fast_bonus.png');
     // this.load.image('slow','../../assets/map_levels/tiles/slow_bonus.png');
     // this.load.image('bridge','../../assets/map_levels/tiles/bridge2.png');
 
@@ -428,7 +457,7 @@ class MainGame extends Phaser.Scene {
         this.player.play('jump', true);
         this.sound.play('jumpSound');
       } else if (this.player.body.onFloor()) {
-        this.player.setVelocityX(200);
+        this.player.setVelocityX(this.player.speed);
         this.player.play('walk', true);
       }
       /*
@@ -465,9 +494,20 @@ class MainGame extends Phaser.Scene {
     this.scene.launch('nextLevel', { level : this.level + 1});
     this.scene.stop();
   }
-  // slowObstacle(player) {
-  //   this.player.slowed = true;
-  // }
+
+/*  hitSlowBonus() {
+    this.player.speed -= 20;
+  }
+
+  hitSpeedBonus() {
+    this.player.speed += 20;
+  }
+
+  hitLifeBonus() {
+    if (this.player.life < 3) {
+      this.player.life++;
+    }
+  }*/
 }
 
 class NextLevel extends Phaser.Scene {
