@@ -1,0 +1,32 @@
+<div fxFlexFill fxLayoutAlign="center center" *ngIf="loading" style="padding: 20px;">
+  <mat-progress-spinner
+    class="example-margin"
+    [color]="'primary'"
+    mode="indeterminate"
+    diameter="100">
+  </mat-progress-spinner>
+</div>
+
+<div fxLayout="row" fxLayoutAlign="space-around center" *ngIf="player">
+  <mat-card fxFlex="80">
+    <mat-card-header>
+      <mat-card-title>
+        {{player.prenom}} {{player.nom}}
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div fxLayoutAlign="center center">
+        <img mat-card-image [src]="player.avatar" class="img-avatar">
+      </div>
+
+    </mat-card-content>
+    <mat-card-actions fxLayout="row" fxLayoutAlign="center space-around">
+      <button mat-raised-button (click)="editPlayer()">
+        <mat-icon>edit</mat-icon>
+      </button>
+      <button mat-raised-button>
+        <mat-icon>delete</mat-icon>
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>
