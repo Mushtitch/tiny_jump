@@ -7,6 +7,7 @@ import {EditPlayerComponent} from './edit-player/edit-player.component';
 import {AuteurGuardService} from '../shared/auteur-guard.service';
 import {DetailsPlayersComponent} from './details-players/details-players.component';
 import {PageNotFoundComponent} from '../page-not-found/page-not-found.component';
+import {DeletePlayerComponent} from './delete-player/delete-player.component';
 
 const playersRoutes: Routes = [
   {
@@ -17,6 +18,7 @@ const playersRoutes: Routes = [
       {path: 'liste', component: ListPlayersComponent},
       {path: ':id', component: DetailsPlayersComponent, canActivateChild: [AuteurGuardService]},
       {path: 'edit/:id', component: EditPlayerComponent, canActivateChild: [AuthGuardService]},
+      {path: 'delete/:id', component: DeletePlayerComponent, canActivateChild: [AuthGuardService]},
     ]
   },
 ];

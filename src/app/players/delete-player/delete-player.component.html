@@ -1,0 +1,22 @@
+<div fxLayoutAlign="center center">
+  <div mat-dialog-content >
+    <mat-toolbar color="primary">
+      Suppression d'un joueur
+    </mat-toolbar>
+    <div fxLayout="column" fxLayoutAlign="center">
+      <div fxLayoutAlign="stretch" fxLayout="row">
+        <div fxFlex="30">Nom :</div>
+        <div fxFlex="70">{{data.nom}}</div>
+      </div>
+      <div fxLayoutAlign="stretch" fxLayout="row">
+        <div fxFlex="30">Prénom :</div>
+        <div fxFlex="70">{{data.prenom}}</div>
+      </div>
+
+    </div>
+    <div mat-dialog-actions>
+      <button mat-button (click)="onNoClick()">Annuler</button>
+      <button mat-button mat-dialog-close="valide" cdkFocusInitial>Ok</button>
+    </div>
+  </div>
+</div>

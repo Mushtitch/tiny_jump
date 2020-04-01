@@ -5,6 +5,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
 import {DialogComponent} from '../../dialog/dialog.component';
 import {AuthService} from '../../shared/auth.service';
+import {DeletePlayerComponent} from "../delete-player/delete-player.component";
 
 @Component({
   selector: 'app-players-details',
@@ -52,6 +53,32 @@ export class DetailsPlayersComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       this.router.navigate(['players', 'liste']);
 
+      return;
+    });
+  }
+
+  delete() {
+    const dialogRef = this.dialog.open(DeletePlayerComponent, {
+      width: '500px',
+      data: {
+        nom: this.player.nom,
+        prenom: this.player.prenom,
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log('Suppression validée');
+
+        this.loading = true;
+        this.service.deletePlayer(this.player).subscribe(player => {
+          this.loading = false;
+        });
+
+        return;
+      }
+
+      console.log('Suppression annulée');
       return;
     });
   }

@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {Player} from '../models/player.model';
-import {map, tap} from 'rxjs/operators';
+import {catchError, map, tap} from 'rxjs/operators';
 import {environment} from '../../environments/environment';
 import {FileInput} from 'ngx-material-file-input';
 
@@ -56,5 +56,10 @@ export class PlayersService {
         tap((rep: any) => console.log(rep)),
         map(p => Player.parse(p.data)),
       );
+  }
+
+  deletePlayer(player: Player): Observable<Player> {
+    const url = `${this.playerUrl}/${player.id} `;
+    return this.http.delete<Player>(url);
   }
 }

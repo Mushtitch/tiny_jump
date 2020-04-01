@@ -14,6 +14,8 @@ import {MaterialFileInputModule} from 'ngx-material-file-input';
 import {AuteurGuardService} from '../shared/auteur-guard.service';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatTabsModule} from '@angular/material/tabs';
+import { DeletePlayerComponent } from './delete-player/delete-player.component';
+import {MatDialogModule} from "@angular/material/dialog";
 
 @NgModule({
   declarations: [
@@ -22,17 +24,19 @@ import {MatTabsModule} from '@angular/material/tabs';
     FormPlayerComponent,
     ListPlayersComponent,
     DetailsPlayersComponent,
+    DeletePlayerComponent,
   ],
-    imports: [
-        CommonModule,
-        ReactiveFormsModule,
-        PlayersRoutingModule,
-        FlexLayoutModule,
-        AngularMaterialModule,
-        MatProgressSpinnerModule,
-        MatTabsModule,
-        MaterialFileInputModule,
-    ],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    PlayersRoutingModule,
+    FlexLayoutModule,
+    AngularMaterialModule,
+    MatProgressSpinnerModule,
+    MatTabsModule,
+    MaterialFileInputModule,
+    MatDialogModule,
+  ],
   providers: [AuteurGuardService],
 })
 export class PlayersModule { }
